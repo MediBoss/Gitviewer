@@ -1,0 +1,23 @@
+{
+  "name": "gitviewer",
+  "version": "1.0.0",
+  "description": "A lightweight chrome extension that notifies you when your Github profile has been viewed.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MediBoss/Gitviewer.git"
+  },
+  "keywords": [
+    "github",
+    "monitor"
+  ],
+  "author": "Medi W. Assumani",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MediBoss/Gitviewer/issues"
+  },
+  "homepage": "https://github.com/MediBoss/Gitviewer#readme"
+}
