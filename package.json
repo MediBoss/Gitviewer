@@ -19,5 +19,10 @@
   "bugs": {
     "url": "https://github.com/MediBoss/Gitviewer/issues"
   },
-  "homepage": "https://github.com/MediBoss/Gitviewer#readme"
+  "homepage": "https://github.com/MediBoss/Gitviewer#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "nodemailer": "^5.0.0",
+    "request": "^2.88.0"
+  }
 }

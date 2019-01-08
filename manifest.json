@@ -1,0 +1,25 @@
+{
+  "name": "Gitviewer",
+  "description": "A lightweight chrome extension that notifies you when your Github profile is viewed.",
+  "version": "0.1",
+  "manifest_version": 2,
+  "author": "Medi W. Assumani",
+
+  "permissions": [
+      "webRequest",
+      "https://github.com/",
+      "activeTab"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["https://*.github.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  }
+}
