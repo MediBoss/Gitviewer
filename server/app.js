@@ -13,6 +13,5 @@ io.on('connection', function(socket){
   })
 });
 
-
 // SERVER BOOTING UP
 http.listen(port);
