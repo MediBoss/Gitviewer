@@ -10,6 +10,10 @@
     "type": "git",
     "url": "git+https://github.com/MediBoss/Gitviewer.git"
   },
+  "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1"
+},
+
   "keywords": [
     "github",
     "monitor"
