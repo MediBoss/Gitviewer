@@ -17,7 +17,6 @@
 
 //Socket server connect to listen to data.
 
-
 function getScript(source, callback) {
     var el = document.createElement('script');
     el.onload = callback;
@@ -26,18 +25,19 @@ function getScript(source, callback) {
     document.body.appendChild(el);
 }
 
+(function(){
+  console.log("inside anonymous function")
+  getScript('http://localhost:3000/socket.io/socket.io.js',function() {
+      console.log("Inside get script")
+      const socket = io.connect('http://localhost:3000/');
+      socket.on('connect', function(){
+      console.log("connection made")
+          socket.on('clientEvent', function (data) {
+              console.log("Ready to send data to socket server")
+              socket.emit('clientEvent', "please see this");
+          });
 
-getScript('localhost:3000//socket.io/socket.io.js',function() {
+      });
 
-    socket = io.connect('localhost:3000');
-
-    socket.on('connect', function(){
-
-        socket.on('clientEvent', function (data) {
-
-            socket.emit('clientEvent', "please see this");
-        });
-
-    });
-
-});
+  });
+}());
