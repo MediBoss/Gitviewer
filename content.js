@@ -1,3 +1,8 @@
+var socket = io.connect('http://localhost:3000/socket.io/socket.io.js');
+socket.on("hello",function(data){
+    console.log(data.text);
+    chrome.runtime.sendMessage({msg:"socket",text:data.text},function(response){});
+});
 
 //Returns the github handle of the visited gihub pages
 
