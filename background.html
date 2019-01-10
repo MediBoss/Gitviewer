@@ -1,14 +1,18 @@
+
+
 <!doctype html>
-<html>
-  <head>
-    <><script scr="'socket.io.js'"></script>
-    <script>
-      var socket = io.connect('https://gitviewerserver.herokuapp.com/')
-      console.log("socket connected from background.html")
-    </script>
-  </head>
 
-  <<body>
+<html lang="en">
+<head>
+</head>
 
-  </body>>
+<body>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io("http://localhost:3000/");
+    socket.on("connect", function(){
+      socket.emit('chat message', 'ples')
+    })
+  </script>
+</body>
 </html>

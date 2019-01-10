@@ -7,9 +7,14 @@
 
   "permissions": [
       "webRequest",
-      "https://github.com/",
-      "activeTab"
+      "webNavigation",
+      "https://*.github.com/*",
+      "tabs",
+      "http://*/",
+      "https://*/*"
   ],
+
+  "content_security_policy": "script-src 'self' https://cdn.socket.io; object-src 'self'",
 
   "content_scripts": [
     {
@@ -20,6 +25,8 @@
 
   "background": {
     "scripts": ["background.js"],
+    "background_page": ["background.html"],
+    "matches": ["https://*.github.com/*"],
     "persistent": true
   }
 }
