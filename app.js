@@ -10,6 +10,7 @@ var path = require('path');
 const port = process.env.PORT || 3000;
 app.use(express.static("public"));
 
+mongoose.connect('mongodb://localhost/gitviwr', {useNewUrlParser: true});
 
 
 io.on('connection', function(socket){
