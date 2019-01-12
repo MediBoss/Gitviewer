@@ -40,7 +40,7 @@ var current_user = {
 
 app.use(express.static("public"));
 
-mongoose.connect('mongodb://localhost/gitviwr', {useNewUrlParser: true});
+mongoose.connect('mongodb://localhost/gitviwrdb', {useNewUrlParser: true});
 
 io.on('connection', function(socket){
   //User.findByID
