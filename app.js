@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
 const methodOverride = require("method-override");
 var app = express()
 var http = require("http").Server(app);
-//var io = require('socket.io')(http);
+var io = require('socket.io')(http);
 var path = require('path');
 const User = require("./user");
 const nodemailer = require("nodemailer")
@@ -22,14 +22,14 @@ var database;
 var user_collection;
 
 
-function queryDatabaseForGithubHandle(handle){
+function queryAndSendEmail(handle){
 
   var user_object;
   user_collection.find().toArray(function(err, result){
 
     result.forEach(function(object){
       if(object.github_handle == handle){
-        emailUser(handle, object.email_address);
+        //emailUser(handle, object.email_address);
       }
     })
   });
@@ -42,31 +42,10 @@ MongoClient.connect(URI, function(error, connected_database) {
     database = connected_database.db(databaseName);
     user_collection = database.collection('users');
 
-    queryDatabaseForGithubHandle('WesleyEspinoza')
+    queryAndSendEmail('WesleyEspinoza')
   };
 });
 
-
-
-
-// Dummy User Data
-var decoy_one = {
-  name: "Rinni Swift",
-  github_handle: "RinniSwift",
-  email_address: process.env.RINNI_EMAIL
-};
-
-var decoy_two = {
-  name: "Medi Assumani",
-  github_handle: "MediBoss",
-  email_address: process.env.MEDI_EMAIL
-}
-
-var decoy_three = {
-  name: "Noah WoodWard",
-  github_handle: "woodward4422",
-  email_address: process.env.NOAH_EMAIL
-};
 
 var current_user = {
   name: "Medi Assumani",
@@ -79,16 +58,15 @@ app.use(express.static("public"));
 // mongoose.connect('mongodb://localhost/gitviwrdb', {useNewUrlParser: true});
 
 
-// io.on('connection', function(socket){
-//   //User.findByID
-//   socket.on("github event", function(data){
-//     if (typeof data != 'undefined'){
-//       console.log("Profile viewed : "+ data)
-//       main(data)
-//     }
-//
-//   });
-// });
+io.on('connection', function(socket){
+  //User.findByID
+  socket.on("github event", function(data){
+    if (typeof data != 'undefined'){
+      console.log("Profile viewed : "+ data)
+    }
+
+  });
+});
 
 
 // // async..await is not allowed in global scope, must use a wrapper
