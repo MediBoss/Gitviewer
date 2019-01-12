@@ -34,7 +34,6 @@ MongoClient.connect(URI, function(error, connected_database) {
       data = result;
       console.log(data[0].last_name);
     });
-
   };
 });
 
