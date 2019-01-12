@@ -22,6 +22,18 @@ var database;
 var user_collection;
 
 
+function queryDatabaseForGithubHandle(handle){
+
+  var user_object;
+  user_collection.find().toArray(function(err, result){
+
+    result.forEach(function(object){
+      if(object.github_handle == handle){
+        emailUser(handle, object.email_address);
+      }
+    })
+  });
+}
 
 MongoClient.connect(URI, function(error, connected_database) {
   if(error) throw error
@@ -29,11 +41,8 @@ MongoClient.connect(URI, function(error, connected_database) {
 
     database = connected_database.db(databaseName);
     user_collection = database.collection('users');
-    var data;
-    user_collection.find().toArray(function(err, result){
-      data = result;
-      console.log(data[0].last_name);
-    });
+
+    queryDatabaseForGithubHandle('WesleyEspinoza')
   };
 });
 
@@ -80,50 +89,36 @@ app.use(express.static("public"));
 //
 //   });
 // });
-//
-// function matchHandleWithUser(github_handle){
-//   if (decoy_one.github_handle == github_handle){
-//     return decoy_one.email_address;
-//
-//   } else if (decoy_two.github_handle == github_handle){
-//
-//     return decoy_two.email_address;
-//   } else if (decoy_three.github_handle == github_handle){
-//
-//     return decoy_three.email_address;
-//   }
-// }
-//
+
+
 // // async..await is not allowed in global scope, must use a wrapper
-// async function main(github_handle){
-//
-//   var target_email = matchHandleWithUser(github_handle)
-//   console.log("Email fetched : " + target_email);
-//   console.log(process.env.GITVIWR_ACCOUNT_EMAIL)
-//
-//   var transporter = nodemailer.createTransport({
-//    service: 'gmail',
-//    auth: {
-//           user: `${process.env.GITVIWR_ACCOUNT_EMAIL}`,
-//           pass: `${process.env.GITVIWR_ACCOUNT_PASSWORD}`
-//       }
-//   });
-//
-//   // setup email data with unicode symbols
-//   let mailOptions = {
-//     from: `${process.env.GITVIWR_ACCOUNT_EMAIL}`, // sender address
-//     to: target_email, // list of receivers
-//     subject: "Gitviwr Notification", // Subject line
-//     text: current_user.name+" has viewed Your Github Handle "+ github_handle
-//   };
-//
-//   // send mail with defined transport object
-//   console.log("Emailing " + target_email+ "...");
-//   let info = await transporter.sendMail(mailOptions)
-//
-//   console.log("Message sent: %s", info.messageId);
-//
-// }
+async function emailUser(github_handle, target_email){
+
+  console.log("Email fetched : " + target_email);
+
+  var transporter = nodemailer.createTransport({
+   service: 'gmail',
+   auth: {
+          user: `${process.env.GITVIWR_ACCOUNT_EMAIL}`,
+          pass: `${process.env.GITVIWR_ACCOUNT_PASSWORD}`
+      }
+  });
+
+  // setup email data with unicode symbols
+  let mailOptions = {
+    from: `${process.env.GITVIWR_ACCOUNT_EMAIL}`, // sender address
+    to: target_email, // list of receivers
+    subject: "Gitviwr Notification", // Subject line
+    text: current_user.name+" has viewed Your Github Handle "+ github_handle
+  };
+
+  // send mail with defined transport object
+  console.log("Emailing " + target_email+ "...");
+  let info = await transporter.sendMail(mailOptions)
+
+  console.log("Email sent to " + github_handle);
+
+}
 
 // SERVER BOOTING UP
 http.listen(port);
