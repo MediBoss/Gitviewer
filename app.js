@@ -29,7 +29,7 @@ function queryAndSendEmail(handle){
 
     result.forEach(function(object){
       if(object.github_handle == handle){
-        //emailUser(handle, object.email_address);
+        emailUser(handle, object.email_address);
       }
     })
   });
@@ -53,27 +53,22 @@ var current_user = {
   email_address: process.env.MEDI_EMAIL
 };
 
-app.use(express.static("public"));
-
-// mongoose.connect('mongodb://localhost/gitviwrdb', {useNewUrlParser: true});
-
-
+// Listens on events from github.com from the extension
 io.on('connection', function(socket){
-  //User.findByID
+
   socket.on("github event", function(data){
     if (typeof data != 'undefined'){
-      console.log("Profile viewed : "+ data)
+      console.log("Profile viewed : "+ data);
     }
-
   });
 });
-
 
 // // async..await is not allowed in global scope, must use a wrapper
 async function emailUser(github_handle, target_email){
 
   console.log("Email fetched : " + target_email);
 
+  // set up the email service
   var transporter = nodemailer.createTransport({
    service: 'gmail',
    auth: {
@@ -82,20 +77,18 @@ async function emailUser(github_handle, target_email){
       }
   });
 
-  // setup email data with unicode symbols
+  // setup email data
   let mailOptions = {
-    from: `${process.env.GITVIWR_ACCOUNT_EMAIL}`, // sender address
-    to: target_email, // list of receivers
-    subject: "Gitviwr Notification", // Subject line
+    from: `${process.env.GITVIWR_ACCOUNT_EMAIL}`,
+    to: target_email,
+    subject: "Gitviwr Notification",
     text: current_user.name+" has viewed Your Github Handle "+ github_handle
   };
 
   // send mail with defined transport object
   console.log("Emailing " + target_email+ "...");
   let info = await transporter.sendMail(mailOptions)
-
   console.log("Email sent to " + github_handle);
-
 }
 
 // SERVER BOOTING UP
