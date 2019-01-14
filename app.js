@@ -4,8 +4,10 @@
 require('dotenv').config()
 var express = require("express");
 const assert = require('assert');
+const exphds = require("express-handlebars");
 const mongoose = require("mongoose");
 const methodOverride = require("method-override");
+var bodyParser = require('body-parser');
 var app = express()
 var http = require("http").Server(app);
 var io = require('socket.io')(http);
@@ -29,6 +31,7 @@ function queryAndSendEmail(handle){
 
     result.forEach(function(object){
       if(object.github_handle == handle){
+        console.log(object.github_handle)
         //emailUser(handle, object.email_address);
       }
     })
@@ -42,7 +45,6 @@ MongoClient.connect(URI, function(error, connected_database) {
     database = connected_database.db(databaseName);
     user_collection = database.collection('users');
 
-    queryAndSendEmail('WesleyEspinoza')
   };
 });
 
@@ -54,15 +56,13 @@ var current_user = {
 };
 
 app.use(express.static("public"));
-
-// mongoose.connect('mongodb://localhost/gitviwrdb', {useNewUrlParser: true});
-
+mongoose.connect('mongodb://localhost/gitviwrdb', {useNewUrlParser: true});
 
 io.on('connection', function(socket){
   //User.findByID
   socket.on("github event", function(data){
     if (typeof data != 'undefined'){
-      console.log("Profile viewed : "+ data)
+      queryAndSendEmail(data);
     }
 
   });
@@ -98,5 +98,24 @@ async function emailUser(github_handle, target_email){
 
 }
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.engine('handlebars', exphds({ defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
+
+
+app.get("/new-user", function(request, response){
+  response.render('new-user');
+});
+
+app.post("/users", function(request, response){
+  User.create(request.body)
+    .then( (user) => {
+      console.log(user);
+    response.redirect('https://www.github.com');
+    })
+})
+
 // SERVER BOOTING UP
 http.listen(port);
+module.exports = app;
