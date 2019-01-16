@@ -23,9 +23,8 @@ const databaseName = 'gitviwrdb';
 var database;
 var user_collection;
 
-
 function queryAndSendEmail(handle){
-
+  console.log('Handle passed : '+ handle);
   var user_object;
   user_collection.find().toArray(function(err, result){
 
@@ -62,6 +61,7 @@ io.on('connection', function(socket){
 
   socket.on("github event", function(data){
     if (typeof data != 'undefined'){
+      console.log("Profile viewed : " + data)
       queryAndSendEmail(data);
     }
   });
@@ -109,7 +109,7 @@ app.post("/users", function(request, response){
   User.create(request.body)
     .then( (user) => {
       console.log(user);
-    response.redirect('https://www.github.com');
+      response.redirect('https://www.github.com');
     })
 })
 
