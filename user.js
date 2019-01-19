@@ -6,5 +6,6 @@ module.exports = mongoose.model('User', {
   first_name: String,
   last_name: String,
   email_address: String,
-  github_handle: String
+  github_handle: String,
+  view_count: Number
 });
