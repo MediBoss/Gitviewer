@@ -24,6 +24,18 @@ var database;
 var user_collection;
 
 
+// function updateViewerCountUI(){
+//
+// }
+
+function updateCountOnClient(id){
+
+  io.on('connection', function(socket){
+    user_collection.findOne({ _id: id}, (err, user) =>{
+      socket.emit('count update', `${user.view_count}`)
+    })
+  })
+}
 
 function updateViewerCount(id, currentCount){
 
@@ -39,9 +51,10 @@ function queryUser(handle){
   user_collection.find().toArray(function(err, result){
     result.forEach(function(object){
       if(object.github_handle == handle){
-        updateViewerCount(object._id, object.view_count)
 
+        updateViewerCount(object._id, object.view_count)
         //emailUser(handle, object.email_address);
+        updateCountOnClient(object._id)
       }
     })
   })
