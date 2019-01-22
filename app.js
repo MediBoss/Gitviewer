@@ -14,6 +14,7 @@ const io = require('socket.io')(http)
 const path = require('path')
 const users = require('./controllers/users')
 const scripts = require('./scripts/scripts')
+const auth = require('./controllers/auth')
 const port = process.env.PORT || 3000
 
 // SETTING UP VIEWS AND MIDDLEWARES
