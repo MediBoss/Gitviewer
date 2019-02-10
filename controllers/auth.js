@@ -3,8 +3,9 @@
 const app = require('express')
 const router = app.Router()
 const User = require('../models/user')
+const jwt = require("jsonwebtoken")
 
 
-router.get("/sign-up", (request, response) =>{
+router.post("/user/signin", (request, response) =>{
   // Add Auth with Github API
 })
