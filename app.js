@@ -24,6 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.engine('handlebars', exphds({ defaultLayout: 'main'}))
 app.set('view engine', 'handlebars')
 app.use(users)
+app.use(auth)
 
 
 // DATABASE SET UP & CONNECTION
@@ -63,12 +64,13 @@ function queryUser(github_handle){
 
   user_collection.find().toArray(function(err, result){
     result.forEach(function(object){
-      if(object.github_handle == github_handle){
+      if(object.login == github_handle){
         updateViewerCount(object._id, object.view_count)
-        scripts.emailUser(github_handle, object.email_address);
+        scripts.emailUser(github_handle, object.email);
         updateCountOnClient(object._id)
       }
     })
+    console.log("User not found in DB");
   })
 }
 

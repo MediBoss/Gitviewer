@@ -1,11 +1,22 @@
-//  The User model
-
+//----------------------------------------------------------------
+// This File defines the User Model and its Methods.
+//----------------------------------------------------------------
 var mongoose = require("mongoose");
+const Schema = mongoose.Schema
 
-module.exports = mongoose.model('User', {
-  first_name: String,
-  last_name: String,
-  email_address: String,
-  github_handle: String,
-  view_count: Number
-});
+const UserSchema = new Schema({
+  name: String,
+  login: String,
+  email: String,
+  view_count: Number,
+  join_date: Date
+})
+
+
+UserSchema.pre("save", function(next){
+  const now = new Date()
+  this.join_date = now
+  this.view_count = 0
+  next();
+})
+module.exports = mongoose.model("User", UserSchema)
