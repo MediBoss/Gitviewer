@@ -8,26 +8,24 @@ const exphds = require("express-handlebars")
 const mongoose = require("mongoose")
 const methodOverride = require("method-override")
 const bodyParser = require('body-parser')
-const cookieParser = require("cookier-parser")
+const cookieParser = require("cookie-parser")
+const jwt = require("jsonwebtoken")
 const app = express()
 const http = require("http").Server(app)
 const io = require('socket.io')(http)
 const path = require('path')
 const users = require('./controllers/users')
-const scripts = require('./scripts/scripts')
+const mailer = require('./helpers/mailer')
 const auth = require('./controllers/auth')
 const port = process.env.PORT || 3000
 
 // SETTING UP VIEWS AND MIDDLEWARES
 app.use(bodyParser.json())
 app.use(cookieParser())
-app.use(express.static("public"))
 app.use(bodyParser.urlencoded({ extended: false }))
-app.engine('handlebars', exphds({ defaultLayout: 'main'}))
-app.set('view engine', 'handlebars')
+app.use(checkAuth)
 app.use(users)
 app.use(auth)
-
 
 // DATABASE SET UP & CONNECTION
 const MongoClient = require('mongodb').MongoClient
@@ -38,7 +36,7 @@ let database
 let user_collection
 
 
-MongoClient.connect(URI, function(error, connected_database) {
+MongoClient.connect(URI, { useNewUrlParser: true }, function(error, connected_database) {
   if(error) throw error
   // connects to the local mongodb database if no error found
   if(!error){
@@ -63,12 +61,11 @@ io.on('connection', function(socket){
 
 // looks up the the github_handle in the data base
 function queryUser(github_handle){
-
   user_collection.find().toArray(function(err, result){
     result.forEach(function(object){
       if(object.login == github_handle){
         updateViewerCount(object._id, object.view_count)
-        scripts.emailUser(github_handle, object.email);
+        mailer.emailUser(github_handle, object.email)
         updateCountOnClient(object._id)
       }
     })

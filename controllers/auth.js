@@ -5,7 +5,7 @@ const router = app.Router()
 const User = require('../models/user')
 const jwt = require("jsonwebtoken")
 const superagent = require("superagent")
-const cookieParser = require("cookier-parser")
+const cookieParser = require("cookie-parser")
 
 // Endpoint to get the user's access token with Github SDK
 router.get("/user/signin/callback", (request, response) =>{
@@ -20,24 +20,22 @@ router.get("/user/signin/callback", (request, response) =>{
      })
     .set('Accept', 'application/json')
     .then(result => {
-       const github_token = result.body.access_token
-       if (token !== undefined) {
+       let github_token = result.body.access_token
+       //console.log("Github Token : " + github_token);
+       if (github_token !== undefined) {
        superagent
          .get('https://api.github.com/user')
          .set('Authorization', 'token ' + github_token)
          .then(result => {
            const user = new User(result.body)
            user.save().then( (savedUser) => {
-             gitviwr_token = jwt.sign({ _id: savedUser._id}, process.env.JWT_SECRET, { expiresIn: "60 days"})
-             response.cookie('gvToken', gitviwr_token, {
-                makeAge: 900000,
-                httpOnly: true
-              })
+             response.cookie("gvToken", github_token, { maxAge: 900000 })
              // TODO: Create a page of confirmation to redirect users
-             // TODO: PERSIST AS THE CURRENT USER
+             // TODO: Set token for current logged in user
            })
            .catch( (error) => {
              console.log(error.message);
+             return response.status(400).send({ err: error })
            })
        }).catch( (error) => {
          console.log(error.message);
@@ -48,4 +46,9 @@ router.get("/user/signin/callback", (request, response) =>{
     })
 })
 
+router.get('/logout', function(request, response){
+  // TODO: Clear the cookies
+  response.clearCookie('gvToken')
+  // TODO: Redirect user to a different page
+})
 module.exports = router
