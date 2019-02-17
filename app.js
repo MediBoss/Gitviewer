@@ -8,6 +8,7 @@ const exphds = require("express-handlebars")
 const mongoose = require("mongoose")
 const methodOverride = require("method-override")
 const bodyParser = require('body-parser')
+const cookieParser = require("cookier-parser")
 const app = express()
 const http = require("http").Server(app)
 const io = require('socket.io')(http)
@@ -19,6 +20,7 @@ const port = process.env.PORT || 3000
 
 // SETTING UP VIEWS AND MIDDLEWARES
 app.use(bodyParser.json())
+app.use(cookieParser())
 app.use(express.static("public"))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.engine('handlebars', exphds({ defaultLayout: 'main'}))
