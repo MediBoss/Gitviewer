@@ -23,7 +23,7 @@ const port = process.env.PORT || 3000
 app.use(bodyParser.json())
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: false }))
-app.use(checkAuth)
+//app.use(checkAuth)
 app.use(users)
 app.use(auth)
 
@@ -54,7 +54,7 @@ io.on('connection', function(socket){
   socket.on("github event", function(github_handle){
     if (typeof github_handle != 'undefined'){
       // requests to query the user with that handle
-      queryUser(github_handle)
+      // queryUser(github_handle)
     }
   })
 })

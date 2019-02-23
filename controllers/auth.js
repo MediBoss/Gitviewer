@@ -21,7 +21,7 @@ router.get("/user/signin/callback", (request, response) =>{
     .set('Accept', 'application/json')
     .then(result => {
        let github_token = result.body.access_token
-       //console.log("Github Token : " + github_token);
+       response.cookie("gvToken", github_token, { maxAge: 900000 })
        if (github_token !== undefined) {
        superagent
          .get('https://api.github.com/user')
@@ -29,9 +29,7 @@ router.get("/user/signin/callback", (request, response) =>{
          .then(result => {
            const user = new User(result.body)
            user.save().then( (savedUser) => {
-             response.cookie("gvToken", github_token, { maxAge: 900000 })
-             // TODO: Create a page of confirmation to redirect users
-             // TODO: Set token for current logged in user
+             response.redirect("https://www.google.com")
            })
            .catch( (error) => {
              console.log(error.message);
