@@ -15,6 +15,7 @@ const http = require("http").Server(app)
 const io = require('socket.io')(http)
 const path = require('path')
 const users = require('./controllers/users')
+const checkAuth = require("./helpers/checkAuth")
 const mailer = require('./helpers/mailer')
 const auth = require('./controllers/auth')
 const port = process.env.PORT || 3000
@@ -23,7 +24,7 @@ const port = process.env.PORT || 3000
 app.use(bodyParser.json())
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: false }))
-//app.use(checkAuth)
+app.use(checkAuth)
 app.use(users)
 app.use(auth)
 
@@ -53,8 +54,8 @@ mongoose.connect('mongodb://localhost/gitviwrdb', {useNewUrlParser: true});
 io.on('connection', function(socket){
   socket.on("github event", function(github_handle){
     if (typeof github_handle != 'undefined'){
-      // requests to query the user with that handle
-      // queryUser(github_handle)
+      // query the user with that handle
+       queryUser(github_handle)
     }
   })
 })
@@ -67,9 +68,11 @@ function queryUser(github_handle){
         updateViewerCount(object._id, object.view_count)
         mailer.emailUser(github_handle, object.email)
         updateCountOnClient(object._id)
+      }else{
+        console.log("User Not Found in DB");
+        return
       }
     })
-    console.log("User not found in DB");
   })
 }
 
