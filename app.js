@@ -1,3 +1,7 @@
+//--------------------------------------------------------------------
+// Entry point of the socket server that supports the chrome extension
+//--------------------------------------------------------------------
+
 
 // Import needed modules and dependecies
 require('dotenv').config()
