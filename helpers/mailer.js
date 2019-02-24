@@ -8,7 +8,7 @@ var current_user = {
 }
 
 // Helper function to email the user whose profile was viewed
-exports.emailUser = async function (github_handle, target_email) {
+exports.emailUser = async function (github_handle, target_email, target_name, target_view_count) {
 
   // set up the email service
   var transporter = nodemailer.createTransport({
@@ -23,9 +23,10 @@ exports.emailUser = async function (github_handle, target_email) {
   let mailOptions = {
     from: `${process.env.GITVIWR_ACCOUNT_EMAIL}`,
     to: target_email,
-    subject: "Gitviwr Notification",
-    text: current_user.name+" has viewed Your Github Handle "+ github_handle
+    subject: "Someone has viewd your Github profile",
+    text: "Hello " + target_name + ",\n\n" + current_user.name + " has viewed Your Github Handle " + github_handle+ ". You now have a total of " + target_view_count + " Github viewers."
   };
 
-  let info = await transporter.sendMail(mailOptions)
+  let emailInfo = await transporter.sendMail(mailOptions)
+  console.log(emailInfo)
 }

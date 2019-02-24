@@ -32,11 +32,10 @@ router.get("/user/signin/callback", (request, response) =>{
              response.redirect("https://www.google.com")
            })
            .catch( (error) => {
-             console.log(error.message);
              return response.status(400).send({ err: error })
            })
        }).catch( (error) => {
-         console.log(error.message);
+         return response.status(400).send({ err: error })
        })
      }
     }).catch( (error) => {
