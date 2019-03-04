@@ -17,13 +17,14 @@ const path = require('path')
 const users = require('./controllers/users')
 const mailer = require('./helpers/mailer')
 const auth = require('./controllers/auth')
+//const checkAuth = require("")
 const port = process.env.PORT || 3000
 
 // SETTING UP VIEWS AND MIDDLEWARES
 app.use(bodyParser.json())
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: false }))
-app.use(checkAuth)
+//app.use(checkAuth)
 app.use(users)
 app.use(auth)
 

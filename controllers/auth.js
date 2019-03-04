@@ -5,7 +5,7 @@ const router = app.Router()
 const User = require('../models/user')
 const jwt = require("jsonwebtoken")
 const superagent = require("superagent")
-const cookieParser = require("cookie-parser")
+var io = require('socket.io')
 
 // Endpoint to get the user's access token with Github SDK
 router.get("/user/signin/callback", (request, response) =>{
@@ -29,9 +29,14 @@ router.get("/user/signin/callback", (request, response) =>{
          .then(result => {
            const user = new User(result.body)
            user.save().then( (savedUser) => {
-             response.cookie("gvToken", github_token, { maxAge: 900000 })
+            
+            // TODO : Send token to chrome extension
+              io.on('connection', function(socket){
+                // send the github token to the client for auth requests
+                socket.emit('user token', `${github_token}`)
+              })
              // TODO: Create a page of confirmation to redirect users
-             // TODO: Set token for current logged in user
+             
            })
            .catch( (error) => {
              console.log(error.message);
