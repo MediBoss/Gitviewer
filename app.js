@@ -18,13 +18,14 @@ const users = require('./controllers/users')
 const checkAuth = require("./helpers/checkAuth")
 const mailer = require('./helpers/mailer')
 const auth = require('./controllers/auth')
+//const checkAuth = require("")
 const port = process.env.PORT || 3000
 
 // SETTING UP VIEWS AND MIDDLEWARES
 app.use(bodyParser.json())
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: false }))
-app.use(checkAuth)
+//app.use(checkAuth)
 app.use(users)
 app.use(auth)
 
@@ -49,14 +50,19 @@ MongoClient.connect(process.env.MONGODB_URI, { useNewUrlParser: true }, function
 
 // SOCKET LISTENING ON EVENTS FROM THE CHROME EXTENSION
 io.on('connection', function(socket){
-  socket.on("github event", function(github_handle){
+  //console.log("hi from github");
+  socket.on("github event", function(incomingData){
+    console.log(incomingData);
+    console.log(typeof incomingData);
+    
+    
     if (typeof github_handle != 'undefined'){
        queryUser(github_handle)
     }
   })
 })
 
-// Look up the the github_handle in the data base
+/** looks up the the github_handle in the data base */
 function queryUser(github_handle){
 
   user_collection.find().toArray(function(err, result){
@@ -91,6 +97,12 @@ function updateCountOnClient(id){
     user_collection.findOne({ _id: id}, (err, user) =>{
       socket.emit('count update', `${user.view_count}`)
     })
+  })
+}
+
+exports.setUpCurrentUser = function(userID){
+  io.on('connection', function(socket){
+    socket.emit('currentUser', `${userID}`)
   })
 }
 

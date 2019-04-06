@@ -2,16 +2,16 @@
 // Middleware to handle the Authentifacation Flow
 //------------------------------------------------
 
-const app = require('express')
-const router = app.Router()
+const express = require('express')
+const rootApp = require('../app')
+const router = express.Router()
 const User = require('../models/user')
-const jwt = require("jsonwebtoken")
 const superagent = require("superagent")
-const cookieParser = require("cookie-parser")
 
 // Endpoint to login with Github SDK
 router.get("/user/signin/callback", (request, response) =>{
-
+  console.log("hi");
+  
   const code = request.param('code')
   // Make a POST request to Github API to retrieve the token
   superagent
@@ -26,25 +26,25 @@ router.get("/user/signin/callback", (request, response) =>{
 
       // Retreive the token and set it as a cookie for future requests
        let github_token = result.body.access_token
-       response.cookie("gvToken", github_token, { maxAge: 900000 })
        if (github_token !== undefined) {
-         // Make a GET request to Github API with the token to grabe the user object
-         superagent
-           .get('https://api.github.com/user')
-           .set('Authorization', 'token ' + github_token)
-           .then(result => {
-
-             // Save the retrieved user in the DB for future actions
-             const user = new User(result.body)
-             user.save().then( (savedUser) => {
-               response.redirect("https://www.google.com")
-             })
-             .catch( (error) => {
-               return response.status(400).send({ err: error })
-             })
-         }).catch( (error) => {
-           return response.status(400).send({ err: error })
-         })
+       superagent
+         .get('https://api.github.com/user')
+         .set('Authorization', 'token ' + github_token)
+         .then(result => {
+           const user = new User(result.body)
+           user.save().then( (savedUser) => {
+            
+            // TODO : Send token to chrome extension
+              app.
+             // TODO: Create a page of confirmation to redirect users
+           })
+           .catch( (error) => {
+             console.log(error.message);
+             return response.status(400).send({ err: error })
+           })
+       }).catch( (error) => {
+         console.log(error.message);
+       })
      }
     }).catch( (error) => {
       console.log(error.message);
