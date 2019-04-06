@@ -1,15 +1,15 @@
 // This controller handles the user Auth and Autorization
 
-const app = require('express')
-const router = app.Router()
+const express = require('express')
+const rootApp = require('../app')
+const router = express.Router()
 const User = require('../models/user')
-const jwt = require("jsonwebtoken")
 const superagent = require("superagent")
-var io = require('socket.io')
 
 // Endpoint to get the user's access token with Github SDK
 router.get("/user/signin/callback", (request, response) =>{
-
+  console.log("hi");
+  
   const code = request.param('code')
   superagent
     .post('https://github.com/login/oauth/access_token')
@@ -21,7 +21,6 @@ router.get("/user/signin/callback", (request, response) =>{
     .set('Accept', 'application/json')
     .then(result => {
        let github_token = result.body.access_token
-       //console.log("Github Token : " + github_token);
        if (github_token !== undefined) {
        superagent
          .get('https://api.github.com/user')
@@ -31,12 +30,8 @@ router.get("/user/signin/callback", (request, response) =>{
            user.save().then( (savedUser) => {
             
             // TODO : Send token to chrome extension
-              io.on('connection', function(socket){
-                // send the github token to the client for auth requests
-                socket.emit('user token', `${github_token}`)
-              })
+              app.
              // TODO: Create a page of confirmation to redirect users
-             
            })
            .catch( (error) => {
              console.log(error.message);

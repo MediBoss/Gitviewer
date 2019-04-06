@@ -52,7 +52,12 @@ mongoose.connect('mongodb://localhost/gitviwrdb', {useNewUrlParser: true});
 
 // SOCKET LISTENING ON EVENTS FROM CHROME EXTENSION
 io.on('connection', function(socket){
-  socket.on("github event", function(github_handle){
+  //console.log("hi from github");
+  socket.on("github event", function(incomingData){
+    console.log(incomingData);
+    console.log(typeof incomingData);
+    
+    
     if (typeof github_handle != 'undefined'){
       // requests to query the user with that handle
       queryUser(github_handle)
@@ -60,7 +65,7 @@ io.on('connection', function(socket){
   })
 })
 
-// looks up the the github_handle in the data base
+/** looks up the the github_handle in the data base */
 function queryUser(github_handle){
   user_collection.find().toArray(function(err, result){
     result.forEach(function(object){
@@ -90,6 +95,12 @@ function updateCountOnClient(id){
     user_collection.findOne({ _id: id}, (err, user) =>{
       socket.emit('count update', `${user.view_count}`)
     })
+  })
+}
+
+exports.setUpCurrentUser = function(userID){
+  io.on('connection', function(socket){
+    socket.emit('currentUser', `${userID}`)
   })
 }
 
