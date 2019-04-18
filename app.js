@@ -47,14 +47,13 @@ MongoClient.connect(process.env.MONGODB_URI, { useNewUrlParser: true }, function
 
 // SOCKET LISTENING ON EVENTS FROM THE CHROME EXTENSION
 io.on('connection', function(socket){
-  //console.log("hi from github");
-  socket.on("github event", function(incomingData){
-    console.log("Incoming data is " + incomingData);
-    // console.log(typeof incomingData);
+  console.log("hi from github event");
+  socket.on("github event", function(gitvierw){
     
-    // if (typeof github_handle != 'undefined'){
-    //    //queryUser(github_handle)
-    // }
+    
+    if (typeof github_handle != 'undefined'){
+       queryUser(github_handle)
+    }
   })
 })
 
