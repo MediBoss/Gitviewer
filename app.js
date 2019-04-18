@@ -9,16 +9,14 @@ const express = require("express")
 const mongoose = require("mongoose")
 const bodyParser = require('body-parser')
 const cookieParser = require("cookie-parser")
-const jwt = require("jsonwebtoken")
 const app = express()
 const http = require("http").Server(app)
 const io = require('socket.io')(http)
-const path = require('path')
 const users = require('./controllers/users')
-const checkAuth = require("./helpers/checkAuth")
 const mailer = require('./helpers/mailer')
 const auth = require('./controllers/auth')
-//const checkAuth = require("")
+const User = require('./models/user')
+const superagent = require("superagent")
 const port = process.env.PORT || 3000
 
 // SETTING UP VIEWS AND MIDDLEWARES
@@ -47,18 +45,16 @@ MongoClient.connect(process.env.MONGODB_URI, { useNewUrlParser: true }, function
   }
 })
 
-
 // SOCKET LISTENING ON EVENTS FROM THE CHROME EXTENSION
 io.on('connection', function(socket){
   //console.log("hi from github");
   socket.on("github event", function(incomingData){
-    console.log(incomingData);
-    console.log(typeof incomingData);
+    console.log("Incoming data is " + incomingData);
+    // console.log(typeof incomingData);
     
-    
-    if (typeof github_handle != 'undefined'){
-       queryUser(github_handle)
-    }
+    // if (typeof github_handle != 'undefined'){
+    //    //queryUser(github_handle)
+    // }
   })
 })
 
@@ -100,11 +96,54 @@ function updateCountOnClient(id){
   })
 }
 
-exports.setUpCurrentUser = function(userID){
+function setUpCurrentUser(user){
+
   io.on('connection', function(socket){
-    socket.emit('currentUser', `${userID}`)
+    socket.emit(`current user`, `${user.login}`)
   })
 }
+
+// Endpoint to login with Github SDK
+app.get("/user/signin/callback", (request, response) =>{
+
+  const code = request.param('code')
+  // Make a POST request to Github API to retrieve the token
+  superagent
+    .post('https://github.com/login/oauth/access_token')
+    .send({
+       client_id: `${process.env.GITHUB_CLIENT_ID}`,
+       client_secret: `${process.env.GITHUB_CLIENT_SECRET}`,
+       code: `${code}`
+     })
+    .set('Accept', 'application/json')
+    .then(result => {
+
+      // Retreive the token and set it as a cookie for future requests
+       let github_token = result.body.access_token
+       console.log(github_token);
+       
+       if (github_token !== undefined) {
+       superagent
+         .get('https://api.github.com/user')
+         .set('Authorization', 'token ' + github_token)
+         .then(result => {
+           const user = new User(result.body)
+           user.save().then( (savedUser) => {
+              setUpCurrentUser(savedUser)
+              response.redirect("https://github.com/MediBoss")
+           })
+           .catch( (error) => {
+             console.log(error.message);
+             return response.status(400).send({ err: error })
+           })
+       }).catch( (error) => {
+         console.log(error.message);
+       })
+     }
+    }).catch( (error) => {
+      console.log(error.message);
+    })
+})
 
 
 // SERVER BOOTING UP
