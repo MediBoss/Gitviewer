@@ -23,7 +23,6 @@ const port = process.env.PORT || 3000
 app.use(bodyParser.json())
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: false }))
-//app.use(checkAuth)
 app.use(users)
 app.use(auth)
 
@@ -47,27 +46,25 @@ MongoClient.connect(process.env.MONGODB_URI, { useNewUrlParser: true }, function
 
 // SOCKET LISTENING ON EVENTS FROM THE CHROME EXTENSION
 io.on('connection', function(socket){
-  console.log("hi from github event");
+
   socket.on("github event", function(gitvierw){
-    
-    
-    if (typeof github_handle != 'undefined'){
-       queryUser(github_handle)
+    if (typeof gitvierw != 'undefined' || gitvierw != null){
+       queryUser(gitvierw.viewed, gitvierw.viewer)
     }
   })
 })
 
 /** looks up the the github_handle in the data base */
-function queryUser(github_handle){
+function queryUser(viewed_handle, current_user){
 
   user_collection.find().toArray(function(err, result){
-    result.forEach(function(object){
+    result.forEach(function(user){
       // Emails the user if found in DB, also update the extension
-      if(object.login == github_handle){
-
-        updateViewerCount(object._id, object.view_count)
-        mailer.emailUser(github_handle, object.email, object.name, object.view_count)
-        updateCountOnClient(object._id)
+      if(user.login == viewed_handle){
+        
+        updateViewerCount(user._id, user.view_count)
+        mailer.emailUser(current_user, user)
+        // updateCountOnClient(user._id)
       }else{
         console.log("User Not Found in DB");
         return
