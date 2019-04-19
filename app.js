@@ -31,7 +31,7 @@ let user_collection
 
 mongoose.connect(`${process.env.MONGODB_URI}`, {useNewUrlParser: true});
 MongoClient.connect(process.env.MONGODB_URI, { useNewUrlParser: true }, function(error, connected_database) {
-  if(error) throw error
+  
   if(!error){
     // connects to the local mongodb database if no error found
     database = connected_database.db(databaseName)
