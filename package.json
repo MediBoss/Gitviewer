@@ -4,7 +4,6 @@
   "description": "A lightweight chrome extension that notifies you when your Github profile has been viewed.",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js"
   },
   "repository": {

@@ -29,7 +29,7 @@ const databaseName = 'gitviwrdb'
 let database
 let user_collection
 
-mongoose.connect('mongodb://localhost/gitviwrdb', {useNewUrlParser: true});
+mongoose.connect(`${process.env.MONGODB_URI}`, {useNewUrlParser: true});
 MongoClient.connect(process.env.MONGODB_URI, { useNewUrlParser: true }, function(error, connected_database) {
   if(error) throw error
   if(!error){
