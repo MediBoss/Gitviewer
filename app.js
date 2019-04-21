@@ -63,7 +63,6 @@ function queryUser(viewed_handle, current_user){
       if(user.login == viewed_handle){
         // Update the amount of views of the user with that github handle
         updateViewerCount(user._id, user.view_count)
-
         mailer.emailUser(current_user, user)
         updateCountOnClient(user._id)
       }
@@ -138,15 +137,14 @@ app.get("/user/signin/callback", (request, response) =>{
               response.redirect("https://github.com")
            })
            .catch( (error) => {
-             console.log(error.message);
              return response.status(400).send({ err: error })
            })
        }).catch( (error) => {
-         console.log(error.message);
+        return response.status(400).send({ err: error })
        })
      }
     }).catch( (error) => {
-      console.log(error.message);
+      return response.status(400).send({ err: error })
     })
 })
 
