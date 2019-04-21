@@ -6,7 +6,7 @@
 require('dotenv').config()
 require("./database/gitviwr-db")
 const express = require("express")
-const mongoose = require("mongoose")
+//const mongoose = require("mongoose")
 const bodyParser = require('body-parser')
 const app = express()
 const http = require("http").Server(app)
@@ -17,7 +17,7 @@ const auth = require('./controllers/auth')
 const User = require('./models/user')
 const superagent = require("superagent")
 const port = process.env.PORT || 3000
-const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/gitviwrdb';
+//const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/gitviwrdb';
 
 // SETTING MIDDLEWARES
 app.use(bodyParser.json())
@@ -32,16 +32,16 @@ let database
 let user_collection
 
 //mongoose.connect(mongoURI, {useNewUrlParser: true});
-MongoClient.connect(mongoURI, { useNewUrlParser: true }, function(error, connected_database) {
+// MongoClient.connect(mongoURI, { useNewUrlParser: true }, function(error, connected_database) {
   
-  if(!error){
-    // connects to the local mongodb database if no error found
-    database = connected_database.db(databaseName)
-    user_collection = database.collection('users')
-  } else {
-    console.log(`The error is ${error}`);
-  }
-})
+//   if(!error){
+//     // connects to the local mongodb database if no error found
+//     database = connected_database.db(databaseName)
+//     user_collection = database.collection('users')
+//   } else {
+//     console.log(`The error is ${error}`);
+//   }
+// })
 
 // Creates socket connection with the chrome extension
 io.on('connection', function(socket){
@@ -66,9 +66,10 @@ function queryUser(viewed_handle, current_user){
     result.forEach(function(user){  
       if(user.login == viewed_handle){
         // Update the amount of views of the user with that github handle
-        updateViewerCount(user._id, user.view_count)
-        mailer.emailUser(current_user, user)
-        updateCountOnClient(user._id)
+        //updateViewerCount(user._id, user.view_count)
+        //mailer.emailUser(current_user, user)
+        //updateCountOnClient(user._id)
+        return
       }
     })
   })
@@ -137,7 +138,7 @@ app.get("/user/signin/callback", (request, response) =>{
          .then(result => {
            const user = new User(result.body)
            user.save().then( (savedUser) => {
-              setUpCurrentUser(savedUser)
+              //setUpCurrentUser(savedUser)
               response.redirect("https://github.com")
            })
            .catch( (error) => {
