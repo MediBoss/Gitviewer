@@ -71,10 +71,6 @@ function queryUser(viewed_handle, current_user){
   })
 }
 
-app.get("/", (req, res) => {
-  res.send("howdy")
-})
-
 /**
  * Updates the the viewer counter of the viewed profile in the database
  * @param {*} id - The ID of the user whose profile was viewed
@@ -139,7 +135,7 @@ app.get("/user/signin/callback", (request, response) =>{
            const user = new User(result.body)
            user.save().then( (savedUser) => {
               setUpCurrentUser(savedUser)
-              response.redirect("https://github.com/MediBoss")
+              response.redirect("https://github.com")
            })
            .catch( (error) => {
              console.log(error.message);
