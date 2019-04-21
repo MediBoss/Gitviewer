@@ -4,6 +4,7 @@
 
 // Import needed modules and dependecies
 require('dotenv').config()
+require("./database/gitviwr-db")
 const express = require("express")
 const mongoose = require("mongoose")
 const bodyParser = require('body-parser')
@@ -30,7 +31,7 @@ const databaseName = 'gitviwrdb'
 let database
 let user_collection
 
-mongoose.connect(mongoURI, {useNewUrlParser: true});
+//mongoose.connect(mongoURI, {useNewUrlParser: true});
 MongoClient.connect(mongoURI, { useNewUrlParser: true }, function(error, connected_database) {
   
   if(!error){
