@@ -16,6 +16,7 @@ const auth = require('./controllers/auth')
 const User = require('./models/user')
 const superagent = require("superagent")
 const port = process.env.PORT || 3000
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/gitviwrdb';
 
 // SETTING MIDDLEWARES
 app.use(bodyParser.json())
@@ -29,8 +30,8 @@ const databaseName = 'gitviwrdb'
 let database
 let user_collection
 
-mongoose.connect(`${process.env.MONGODB_URI}`, {useNewUrlParser: true});
-MongoClient.connect(process.env.MONGODB_URI, { useNewUrlParser: true }, function(error, connected_database) {
+mongoose.connect(mongoURI, {useNewUrlParser: true});
+MongoClient.connect(mongoURI, { useNewUrlParser: true }, function(error, connected_database) {
   
   if(!error){
     // connects to the local mongodb database if no error found
