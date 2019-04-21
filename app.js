@@ -37,6 +37,8 @@ MongoClient.connect(mongoURI, { useNewUrlParser: true }, function(error, connect
     // connects to the local mongodb database if no error found
     database = connected_database.db(databaseName)
     user_collection = database.collection('users')
+  } else {
+    console.log(`The error is ${error}`);
   }
 })
 
