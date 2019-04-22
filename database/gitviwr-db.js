@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
 assert = require('assert');
 
-const url = process.env.MONGODB_URI || 'mongodb://localhost/gitviwrdb';
+const url = process.env.MONGOLAB_URI || 'mongodb://localhost/gitviwrdb';
 mongoose.Promise = global.Promise;
 mongoose.connect(
 url,
