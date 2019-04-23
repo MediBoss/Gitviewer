@@ -14,6 +14,7 @@ const users = require('./controllers/users')
 const auth = require('./controllers/auth')
 const User = require('./models/user')
 const superagent = require("superagent")
+const mailer = require("./helpers/mailer")
 const port = process.env.PORT || 3000
 
 // SETTING MIDDLEWARES
@@ -22,30 +23,14 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(users)
 app.use(auth)
 
-// DATABASE SET UP & CONNECTION
-// const MongoClient = require('mongodb').MongoClient
-// const databaseName = 'gitviwrdb'
-// let database
-// let user_collection
-
-//mongoose.connect(mongoURI, {useNewUrlParser: true});
-// MongoClient.connect(mongoURI, { useNewUrlParser: true }, function(error, connected_database) {
-  
-//   if(!error){
-//     // connects to the local mongodb database if no error found
-//     database = connected_database.db(databaseName)
-//     user_collection = database.collection('users')
-//   } else {
-//     console.log(`The error is ${error}`);
-//   }
-// })
 
 // Creates socket connection with the chrome extension
 io.on('connection', function(socket){
   
   socket.on("github event", function(gitvierw){
+    
     // chrome extension sends the handle viewed and the user who has done the viewing.
-    if (typeof gitvierw != 'undefined' || gitvierw != null){
+    if (typeof gitvierw != 'undefined' && gitvierw != null && gitvierw.viewed !== 'settings'){
        queryUser(gitvierw.viewed, gitvierw.viewer)
     }
   })
@@ -59,25 +44,17 @@ io.on('connection', function(socket){
 function queryUser(viewed_handle, current_user){
 
   User.findOne( {login: viewed_handle}, function(err, user) {
-    console.log(user);
-    
-  } )
-  // TODO = use mongoose promise
-  // user_collection.find().toArray(function(err, result){
 
-  //   result.forEach(function(user){  
-  //     if(user.login === viewed_handle){
-  //       // Update the amount of views of the user with that github handle
-  //       updateViewerCount(user._id, user.view_count)
-  //       mailer.emailUser(current_user, user)
-  //       updateCountOnClient(user._id)
-  //       return
-  //     }
-  //   })
-  // })
-  
-  // Return result(user objc)
-  return 
+    // Do nothing if the user with that handle is not found in the data base
+    if(err || user == null){
+      return 
+    }
+    
+    // Update the amount of views of the user with that github handle
+    updateViewerCount(user._id, user.view_count)
+    mailer.emailUser(current_user, user)
+    updateCountOnClient(user._id)
+  } )
 }
 
 /**
@@ -87,10 +64,17 @@ function queryUser(viewed_handle, current_user){
  */
 function updateViewerCount(id, currentCount){
 
-  user_collection.updateOne(
+  //User.updateOne({ _id: id}, {$set:{ view_count: currentCount + 1 }})
+  User.updateOne(
     {_id: id},
     {$set:{ view_count: currentCount + 1 }}
   )
+
+  User.findOneAndUpdate({ _id: id}, {$set:{view_count: currentCount + 1}}, (err, user) => {
+    if (err) {
+      console.log("something went wrong")
+    }
+  })
 }
 
 /**
@@ -100,7 +84,7 @@ function updateViewerCount(id, currentCount){
 function updateCountOnClient(id){
 
   io.on('connection', function(socket){
-    user_collection.findOne({ _id: id}, (err, user) =>{
+    User.findOne({ _id: id}, (err, user) =>{
       socket.emit('count update', `${user.view_count}`)
     })
   })
@@ -119,8 +103,6 @@ function setUpCurrentUser(user){
 // Endpoint to login with Github SDK - will be moved to its own module
 app.get("/user/signin/callback", (request, response) =>{
 
-  console.log("in callback");
-  
   const code = request.param('code')
   // Make a POST request to Github API to retrieve the user's token
   superagent
@@ -135,8 +117,6 @@ app.get("/user/signin/callback", (request, response) =>{
 
       // Retreive the token and set it as a cookie for future requests
        let github_token = result.body.access_token
-       console.log("token in ", github_token);
-       
        if (github_token !== undefined) {
 
         // Makes a request to Github API to get back the user object after Authorizing Gitviwr.
@@ -144,14 +124,11 @@ app.get("/user/signin/callback", (request, response) =>{
          .get('https://api.github.com/user')
          .set('Authorization', 'token ' + github_token)
          .then(result => {
-           console.log(result);
            
            const user = new User(result.body)
-           console.log(user);
-           
            user.save().then( (savedUser) => {
-              //setUpCurrentUser(savedUser)
-              //response.redirect("https://github.com")
+              setUpCurrentUser(savedUser)
+              response.redirect("https://github.com")
            })
            .catch( (error) => {
              return response.status(400).send({ err: error })
