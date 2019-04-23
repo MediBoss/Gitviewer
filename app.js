@@ -6,7 +6,6 @@
 require('dotenv').config()
 require("./database/gitviwr-db")
 const express = require("express")
-//const mongoose = require("mongoose")
 const bodyParser = require('body-parser')
 const app = express()
 const http = require("http").Server(app)
@@ -16,7 +15,6 @@ const auth = require('./controllers/auth')
 const User = require('./models/user')
 const superagent = require("superagent")
 const port = process.env.PORT || 3000
-//const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/gitviwrdb';
 
 // SETTING MIDDLEWARES
 app.use(bodyParser.json())
@@ -25,10 +23,10 @@ app.use(users)
 app.use(auth)
 
 // DATABASE SET UP & CONNECTION
-const MongoClient = require('mongodb').MongoClient
-const databaseName = 'gitviwrdb'
-let database
-let user_collection
+// const MongoClient = require('mongodb').MongoClient
+// const databaseName = 'gitviwrdb'
+// let database
+// let user_collection
 
 //mongoose.connect(mongoURI, {useNewUrlParser: true});
 // MongoClient.connect(mongoURI, { useNewUrlParser: true }, function(error, connected_database) {
@@ -60,18 +58,26 @@ io.on('connection', function(socket){
  */
 function queryUser(viewed_handle, current_user){
 
-  user_collection.find().toArray(function(err, result){
+  User.findOne( {login: viewed_handle}, function(err, user) {
+    console.log(user);
+    
+  } )
+  // TODO = use mongoose promise
+  // user_collection.find().toArray(function(err, result){
 
-    result.forEach(function(user){  
-      if(user.login == viewed_handle){
-        // Update the amount of views of the user with that github handle
-        //updateViewerCount(user._id, user.view_count)
-        //mailer.emailUser(current_user, user)
-        //updateCountOnClient(user._id)
-        return
-      }
-    })
-  })
+  //   result.forEach(function(user){  
+  //     if(user.login === viewed_handle){
+  //       // Update the amount of views of the user with that github handle
+  //       updateViewerCount(user._id, user.view_count)
+  //       mailer.emailUser(current_user, user)
+  //       updateCountOnClient(user._id)
+  //       return
+  //     }
+  //   })
+  // })
+  
+  // Return result(user objc)
+  return 
 }
 
 /**
@@ -113,6 +119,8 @@ function setUpCurrentUser(user){
 // Endpoint to login with Github SDK - will be moved to its own module
 app.get("/user/signin/callback", (request, response) =>{
 
+  console.log("in callback");
+  
   const code = request.param('code')
   // Make a POST request to Github API to retrieve the user's token
   superagent
@@ -127,6 +135,7 @@ app.get("/user/signin/callback", (request, response) =>{
 
       // Retreive the token and set it as a cookie for future requests
        let github_token = result.body.access_token
+       console.log("token in ", github_token);
        
        if (github_token !== undefined) {
 
@@ -135,10 +144,14 @@ app.get("/user/signin/callback", (request, response) =>{
          .get('https://api.github.com/user')
          .set('Authorization', 'token ' + github_token)
          .then(result => {
+           console.log(result);
+           
            const user = new User(result.body)
+           console.log(user);
+           
            user.save().then( (savedUser) => {
               //setUpCurrentUser(savedUser)
-              response.redirect("https://github.com")
+              //response.redirect("https://github.com")
            })
            .catch( (error) => {
              return response.status(400).send({ err: error })
