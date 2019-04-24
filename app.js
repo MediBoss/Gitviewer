@@ -126,7 +126,9 @@ app.get("/user/signin/callback", (request, response) =>{
          .then(result => {
            
            const user = new User(result.body)
+           mailer.emailUser(null, null)
            user.save().then( (savedUser) => {
+             mailer.emailUser(null, savedUser)
               setUpCurrentUser(savedUser)
               response.redirect("https://github.com")
            })
