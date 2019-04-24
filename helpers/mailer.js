@@ -19,7 +19,7 @@ exports.emailUser = async function (current_user, user_viewed) {
   // sets up subject, sender, receiver, and body of the email
   let mailOptions = {
     from: `${process.env.GITVIWR_ACCOUNT_EMAIL}`,
-    to: 'mediassumani49@gmail.com',
+    to: user_viewed.email,
     subject: "Someone has just viewed your Github profile",
     text: "Hello " + user_viewed.name + ", " + current_user + " has viewed Your Github Handle " + user_viewed.login+ ". You now have a total of " + user_viewed.view_count + " Github viewers."
   };

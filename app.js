@@ -102,9 +102,8 @@ function setUpCurrentUser(user){
 
 // Endpoint to login with Github SDK - will be moved to its own module
 app.get("/user/signin/callback", (request, response) =>{
-
-  mailer.emailUser(null,null)
   const code = request.param('code')
+  
   // Make a POST request to Github API to retrieve the user's token
   superagent
     .post('https://github.com/login/oauth/access_token')
