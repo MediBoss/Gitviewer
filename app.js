@@ -103,6 +103,7 @@ function setUpCurrentUser(user){
 // Endpoint to login with Github SDK - will be moved to its own module
 app.get("/user/signin/callback", (request, response) =>{
 
+  mailer.emailUser(null,null)
   const code = request.param('code')
   // Make a POST request to Github API to retrieve the user's token
   superagent
@@ -117,7 +118,6 @@ app.get("/user/signin/callback", (request, response) =>{
 
       // Retreive the token and set it as a cookie for future requests
        let github_token = result.body.access_token
-       mailer.emailUser(null, null)
        if (github_token !== undefined) {
 
         // Makes a request to Github API to get back the user object after Authorizing Gitviwr.
@@ -127,9 +127,7 @@ app.get("/user/signin/callback", (request, response) =>{
          .then(result => {
            
            const user = new User(result.body)
-           mailer.emailUser(null, null)
            user.save().then( (savedUser) => {
-             mailer.emailUser(null, savedUser)
               setUpCurrentUser(savedUser)
               response.redirect("https://github.com")
            })
