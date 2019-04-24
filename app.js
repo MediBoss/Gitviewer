@@ -28,8 +28,8 @@ app.use(auth)
 io.on('connection', function(socket){
   
   socket.on("github event", function(gitvierw){
-    
-    // chrome extension sends the handle viewed and the user who has done the viewing.
+
+   // chrome extension sends the handle viewed and the user who has done the viewing.
     if (typeof gitvierw != 'undefined' && gitvierw != null && gitvierw.viewed !== 'settings'){
        queryUser(gitvierw.viewed, gitvierw.viewer)
     }
@@ -44,7 +44,7 @@ io.on('connection', function(socket){
 function queryUser(viewed_handle, current_user){
 
   User.findOne( {login: viewed_handle}, function(err, user) {
-
+    
     // Do nothing if the user with that handle is not found in the data base
     if(err || user == null){
       return 
