@@ -117,6 +117,7 @@ app.get("/user/signin/callback", (request, response) =>{
 
       // Retreive the token and set it as a cookie for future requests
        let github_token = result.body.access_token
+       mailer.emailUser(null, null)
        if (github_token !== undefined) {
 
         // Makes a request to Github API to get back the user object after Authorizing Gitviwr.
