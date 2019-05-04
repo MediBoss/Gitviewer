@@ -100,13 +100,8 @@ function setUpCurrentUser(user){
   })
 }
 
-app.get("/hello", (req, res) => {
-  res.send("working")
-})
-
 // Endpoint to login with Github SDK - will be moved to its own module
 app.get("/user/signin/callback", (request, response) =>{
-  console.log("inside callback yay");
   
   const code = request.param('code')
   
