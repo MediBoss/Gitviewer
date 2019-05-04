@@ -16,13 +16,49 @@ const User = require('./models/user')
 const superagent = require("superagent")
 const mailer = require("./helpers/mailer")
 const port = process.env.PORT || 3000
+const passport = require("passport")
+var GithubStrategy = require('passport-github').Strategy
+
 
 // SETTING MIDDLEWARES
+app.use(passport.initialize())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(users)
 app.use(auth)
 
+
+passport.use(new GithubStrategy({
+  clientID: `${process.env.GITHUB_CLIENT_ID}`,
+  clientSecret: `${process.env.GITHUB_CLIENT_SECRET}`,
+  callbackURL: "https://gitviewerserver.herokuapp.com/user/signin/callback"
+},
+function(accessToken, refreshToken, profile, callback) {
+
+  const user = new User(profile._json)
+  user.save().then( (savedUser) => {
+
+    setUpCurrentUser(savedUser)
+    return callback(null, profile)
+
+  }).catch( (error) => {
+    return callback(null, error)
+  })
+}
+))
+
+passport.serializeUser(function(user, done) {
+  // placeholder for custom user serialization
+  // null is for errors
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  // placeholder for custom user deserialization.
+  // maybe you are going to get the user from mongo by id?
+  // null is for errors
+  done(null, user);
+});
 
 // Creates socket connection with the chrome extension
 io.on('connection', function(socket){
@@ -52,8 +88,8 @@ function queryUser(viewed_handle, current_user){
     
     // Update the amount of views of the user with that github handle
     updateViewerCount(user._id, user.view_count)
-    mailer.emailUser(current_user, user)
     updateCountOnClient(user._id)
+    mailer.emailUser(current_user, user)
   } )
 }
 
@@ -100,51 +136,20 @@ function setUpCurrentUser(user){
   })
 }
 
-// Endpoint to login with Github SDK - will be moved to its own module
-app.get("/user/signin/callback", (request, response) =>{
-  
-  const code = request.param('code')
-  
-  // Make a POST request to Github API to retrieve the user's token
-  superagent
-    .post('https://github.com/login/oauth/access_token')
-    .send({
-       client_id: `${process.env.GITHUB_CLIENT_ID}`,
-       client_secret: `${process.env.GITHUB_CLIENT_SECRET}`,
-       code: `${code}`
-     })
-    .set('Accept', 'application/json')
-    .then(result => {
-
-      // Retreive the token and set it as a cookie for future requests
-       let github_token = result.body.access_token
-       console.log("got the token", github_token);
-       
-       if (github_token !== undefined) {
-
-        // Makes a request to Github API to get back the user object after Authorizing Gitviwr.
-       superagent
-         .get('https://api.github.com/user')
-         .set('Authorization', 'token ' + github_token)
-         .then(result => {
-           
-           const user = new User(result.body)
-           user.save().then( (savedUser) => {
-              setUpCurrentUser(savedUser)
-              response.redirect("https://github.com")
-           })
-           .catch( (error) => {
-             return response.status(400).send({ err: error })
-           })
-       }).catch( (error) => {
-        return response.status(400).send({ err: error })
-       })
-     }
-    }).catch( (error) => {
-      return response.status(400).send({ err: error })
-    })
+app.get("/error", (request, response) => {
+  response.send("Unable to successfully authenticate.")
 })
 
+app.get("/success", (request, response) => {
+  response.send("Logged in!")
+})
+
+// Endpoint to login with Github SDK - will be moved to its own module
+app.get("/user/signin/callback", passport.authenticate('github', { failureRedirect: '/error' }),
+  function(req, res) {
+    res.redirect("/success")
+  }
+)
 
 // SERVER BOOTING UP
 http.listen(port)
