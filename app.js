@@ -100,8 +100,14 @@ function setUpCurrentUser(user){
   })
 }
 
+app.get("/hello", (req, res) => {
+  res.send("working")
+})
+
 // Endpoint to login with Github SDK - will be moved to its own module
 app.get("/user/signin/callback", (request, response) =>{
+  console.log("inside callback yay");
+  
   const code = request.param('code')
   
   // Make a POST request to Github API to retrieve the user's token
@@ -117,6 +123,8 @@ app.get("/user/signin/callback", (request, response) =>{
 
       // Retreive the token and set it as a cookie for future requests
        let github_token = result.body.access_token
+       console.log("got the token", github_token);
+       
        if (github_token !== undefined) {
 
         // Makes a request to Github API to get back the user object after Authorizing Gitviwr.
