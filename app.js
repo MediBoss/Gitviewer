@@ -10,10 +10,10 @@ const bodyParser = require('body-parser')
 const app = express()
 const http = require("http").Server(app)
 const io = require('socket.io')(http)
+const path = require("path")
 const users = require('./controllers/users')
 const auth = require('./controllers/auth')
 const User = require('./models/user')
-const superagent = require("superagent")
 const mailer = require("./helpers/mailer")
 const port = process.env.PORT || 3000
 const passport = require("passport")
@@ -21,12 +21,13 @@ var GithubStrategy = require('passport-github').Strategy
 
 
 // SETTING MIDDLEWARES
+
 app.use(passport.initialize())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
+app.use(express.static(path.join(__dirname, 'views')))
 app.use(users)
 app.use(auth)
-
 
 passport.use(new GithubStrategy({
   clientID: `${process.env.GITHUB_CLIENT_ID}`,
@@ -137,11 +138,15 @@ function setUpCurrentUser(user){
 }
 
 app.get("/error", (request, response) => {
-  response.send("Unable to successfully authenticate.")
+  response.send("Oops an error happend while authenticating your account. Email me at mediassumani49@gmail.com and I will take a look at the issue and get back to you.")
 })
 
 app.get("/success", (request, response) => {
-  response.send("Logged in!")
+  response.sendFile(path.join(__dirname+'/views'+'/logged-in.html'))
+})
+
+app.get("/logout", (request, response) => {
+  response.send('successfully logged out')
 })
 
 // Endpoint to login with Github SDK - will be moved to its own module
