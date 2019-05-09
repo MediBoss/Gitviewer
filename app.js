@@ -101,12 +101,6 @@ function queryUser(viewed_handle, current_user){
  */
 function updateViewerCount(id, currentCount){
 
-  //User.updateOne({ _id: id}, {$set:{ view_count: currentCount + 1 }})
-  User.updateOne(
-    {_id: id},
-    {$set:{ view_count: currentCount + 1 }}
-  )
-
   User.findOneAndUpdate({ _id: id}, {$set:{view_count: currentCount + 1}}, (err, user) => {
     if (err) {
       console.log("something went wrong")
