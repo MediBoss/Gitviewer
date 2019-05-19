@@ -16,6 +16,7 @@ const auth = require('./controllers/auth')
 const User = require('./models/user')
 const mailer = require("./helpers/mailer")
 const port = process.env.PORT || 3000
+var clients = []
 const passport = require("passport")
 var GithubStrategy = require('passport-github').Strategy
 
@@ -64,9 +65,11 @@ passport.deserializeUser(function(user, done) {
 // Creates socket connection with the chrome extension
 io.on('connection', function(socket){
   
+  //clients.push(socket.id)
   socket.on("github event", function(gitvierw){
-
-   // chrome extension sends the handle viewed and the user who has done the viewing.
+    //console.log(`RECEIVE FROM : ${socket.id}`)
+    
+  //  // chrome extension sends the handle viewed and the user who has done the viewing.
     if (typeof gitvierw != 'undefined' && gitvierw != null && gitvierw.viewed !== 'settings'){
        queryUser(gitvierw.viewed, gitvierw.viewer)
     }
@@ -86,6 +89,7 @@ function queryUser(viewed_handle, current_user){
     if(err || user == null){
       return 
     }
+  
     
     // Update the amount of views of the user with that github handle
     updateViewerCount(user._id, user.view_count)
@@ -113,10 +117,11 @@ function updateViewerCount(id, currentCount){
  * @param {*} id - The ID of the user whose profile was viewed
  */ 
 function updateCountOnClient(id){
-
+  
   io.on('connection', function(socket){
+
     User.findOne({ _id: id}, (err, user) =>{
-      socket.emit('count update', `${user.view_count}`)
+      io.to(`${socket.id}`).emit('count update', `${user.view_count}`)
     })
   })
 }
